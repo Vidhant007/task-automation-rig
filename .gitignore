@@ -1,0 +1,3 @@
+# Dependency files
+go.sum
+vendor/
