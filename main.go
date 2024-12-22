@@ -1,13 +1,28 @@
 package main
 
-import "github.com/gofiber/fiber/v2"
+import (
+    "log"
+
+    "github.com/gofiber/fiber/v2"
+    "github.com/gofiber/fiber/v2/middleware/logger"
+    "task-automation-rig/routes"
+)
 
 func main() {
-	app:= fiber.New()
+    app := fiber.New(fiber.Config{
+        ErrorHandler: func(c *fiber.Ctx, err error) error {
+            return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+                "error": err.Error(),
+            })
+        },
+    })
 
-	app.Get("/",func(c *fiber.Ctx) error {
-		return c.SendString("Hello World !")
-	})
+    // Middleware
+    app.Use(logger.New())
 
-	app.Listen(":3000")
+    // Setup routes
+    routes.SetupRoutes(app)
+
+    // Start server
+    log.Fatal(app.Listen(":3000"))
 }
