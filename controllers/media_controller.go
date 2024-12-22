@@ -45,6 +45,7 @@ func (c *MediaController) CreateMediaJob(ctx *fiber.Ctx) error {
         ContainerFormat: request.ContainerFormat,
         Resolutions:     request.Resolutions,
         DestinationPath: request.DestinationPath,
+        Filters:         request.Filters,
         Status:         "pending",
         ProcessedFiles:  make([]string, 0),
         StartTime:      time.Now(),
@@ -173,7 +174,8 @@ func (c *MediaController) processVideo(job *models.MediaJob, videoPath string) e
             args = append(args, "-crf", "23", "-preset", "medium", "-movflags", "+faststart")
         }
 
-        args = append(args, "-vf", fmt.Sprintf("scale=%d:%d", width, height), "-progress", "pipe:1")
+        filterString := buildFilterString(job.Filters, width, height)
+        args = append(args, "-vf", filterString, "-progress", "pipe:1")
 
         switch job.ContainerFormat {
         case models.WebM:
@@ -271,4 +273,51 @@ func getContainerExtension(format models.ContainerFormat) string {
     default:
         return ".mp4"
     }
+}
+
+// Add this function to build filter string
+func buildFilterString(filters *models.VideoFilter, width, height int) string {
+    var filterParts []string
+
+    // Base scaling filter
+    filterParts = append(filterParts, fmt.Sprintf("scale=%d:%d", width, height))
+
+    if filters != nil {
+        // GrayScale
+        if filters.Grayscale {
+            filterParts = append(filterParts, "format=gray")
+        }
+        // Deinterlace
+        if filters.Deinterlace {
+            filterParts = append(filterParts, "yadif=mode=1")
+        }
+        
+        // Denoise
+        if filters.Denoise {
+            filterParts = append(filterParts, "hqdn3d=4:3:6:4")
+        }
+
+        // Brightness, contrast, saturation adjustments
+        if filters.Brightness != 0 || filters.Contrast != 0 || filters.Saturation != 0 {
+            filterParts = append(filterParts, fmt.Sprintf("eq=brightness=%.2f:contrast=%.2f:saturation=%.2f", 
+                filters.Brightness, filters.Contrast, filters.Saturation))
+        }
+
+        // Sharpen
+        if filters.Sharpen {
+            filterParts = append(filterParts, "unsharp=5:5:1.0:5:5:0.0")
+        }
+
+        // Speed adjustment
+        if filters.Speed != 0 && filters.Speed != 1.0 {
+            filterParts = append(filterParts, fmt.Sprintf("setpts=%.2f*PTS", 1/filters.Speed))
+        }
+
+        // Rotation
+        if filters.Rotate != 0 {
+            filterParts = append(filterParts, fmt.Sprintf("rotate=%d*PI/180", filters.Rotate))
+        }
+    }
+
+    return strings.Join(filterParts, ",")
 }

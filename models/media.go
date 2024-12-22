@@ -31,12 +31,26 @@ const (
     Res1080p Resolution = "1080p"  // 1920x1080
 )
 
+// VideoFilter represents different FFmpeg filter options
+type VideoFilter struct {
+    Deinterlace    bool    `json:"deinterlace,omitempty"`
+    Denoise        bool    `json:"denoise,omitempty"`
+    Brightness     float64 `json:"brightness,omitempty"`
+    Contrast       float64 `json:"contrast,omitempty"`
+    Saturation     float64 `json:"saturation,omitempty"`
+    Sharpen        bool    `json:"sharpen,omitempty"`
+    Speed          float64 `json:"speed,omitempty"`
+    Rotate         int     `json:"rotate,omitempty"`
+    Grayscale      bool    `json:"grayscale,omitempty"`
+}
+
 type MediaRequest struct {
-    SourcePath      string          `json:"sourcePath"`      // Source video path
-    CodecType       CodecType       `json:"codecType"`       // Target codec
-    ContainerFormat ContainerFormat `json:"containerFormat"` // Output container format
-    Resolutions     []Resolution    `json:"resolutions"`     // Target resolutions
-    DestinationPath string          `json:"destinationPath"` // Output directory
+    SourcePath      string          `json:"sourcePath"`
+    CodecType       CodecType       `json:"codecType"`
+    ContainerFormat ContainerFormat `json:"containerFormat"`
+    Resolutions     []Resolution    `json:"resolutions"`
+    DestinationPath string          `json:"destinationPath"`
+    Filters         *VideoFilter    `json:"filters,omitempty"`
 }
 
 type MediaJob struct {
@@ -46,6 +60,7 @@ type MediaJob struct {
     ContainerFormat ContainerFormat `json:"containerFormat"`
     Resolutions     []Resolution    `json:"resolutions"`
     DestinationPath string          `json:"destinationPath"`
+    Filters         *VideoFilter    `json:"filters,omitempty"`
     Status          string          `json:"status"`
     CurrentFile     string          `json:"currentFile,omitempty"`
     ProcessedFiles  []string        `json:"processedFiles"`
