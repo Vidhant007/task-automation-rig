@@ -5,9 +5,13 @@ import "time"
 type CompressionType string
 
 const (
-    Tar  CompressionType = "tar"
-    Zip  CompressionType = "zip"
-    Gzip CompressionType = "gzip"
+    Tar    CompressionType = "tar"     // Basic tar archive
+    TarGz  CompressionType = "tar.gz"  // Tar with gzip compression
+    TarBz2 CompressionType = "tar.bz2" // Tar with bzip2 compression
+    TarXz  CompressionType = "tar.xz"  // Tar with xz compression
+    Zip    CompressionType = "zip"     // ZIP archive
+    SevenZ CompressionType = "7z"      // 7-Zip archive
+    Rar    CompressionType = "rar"     // RAR archive
 )
 
 type BackupRequest struct {

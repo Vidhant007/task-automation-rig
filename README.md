@@ -41,3 +41,6 @@ Task Automation Rig (TAR) is your **Universal Automation Engine**, built for Lin
 
 
 
+## Dependencies 
+sudo apt-get update
+sudo apt-get install tar gzip bzip2 xz-utils zip p7zip-full rar
